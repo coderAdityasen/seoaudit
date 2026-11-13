@@ -95,7 +95,7 @@ export default function ClientDashboardPage({ params }: { params: Promise<{ clie
           overallScore={latestCompleted.overallScore}
           scoreBreakdown={latestCompleted.scoreBreakdown}
           result={latestCompleted.result}
-          pdfHref={latestCompleted.pdfPath ? `/api/audit/${latestCompleted.id}/pdf` : null}
+          pdfHref={latestCompleted.result ? `/api/audit/${latestCompleted.id}/pdf` : null}
           trend={data.audits.map((audit) => ({
             id: audit.id,
             status: audit.status,

@@ -108,7 +108,7 @@ Routes only enqueue or read, except the cron fallback, which runs one audit. Kee
 4. Worker: Render, Railway, or Fly. Start command `npm run worker`. Same `DATABASE_URL`, `REDIS_URL`, `USE_MOCKS`, and `REPORTS_DIR`. The worker is not a Vercel function.
 5. cron-job.org: every minute, `GET https://<app>.vercel.app/api/cron/audits` with header `x-cron-secret: <CRON_SECRET>`.
 6. Supabase free projects pause after 7 days. Point a second cron-job.org ping at `/api/health`.
-7. PDF files live on the machine that runs `runAudit`. If the worker host generates the PDF, the Vercel download route can only serve it when both sides share `REPORTS_DIR` (or you set `FALLBACK_PROCESS=true` so Vercel generates the file). For a split deploy, generate PDFs on the host that also serves `GET /api/audit/[id]/pdf`, or switch the fallback on.
+7. `GET /api/audit/[id]/pdf` rebuilds the PDF from the audit saved in Postgres. A shared disk is not required, so the download works on Vercel.
 
 ## Assumptions
 

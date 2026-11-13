@@ -38,18 +38,23 @@ export async function GET(req: Request) {
     enqueued += 1;
   }
 
+  const fallbackEnv = (process.env.FALLBACK_PROCESS || '').trim().toLowerCase();
+  const fallback = fallbackEnv === '' || fallbackEnv === 'true' || fallbackEnv === '1' || fallbackEnv === 'yes';
   let processed = 0;
-  if (process.env.FALLBACK_PROCESS === 'true') {
-    const queued = await db.orm.public.Audit.where({ status: 'QUEUED' })
-      .orderBy((audit) => audit.createdAt.asc())
-      .limit(1)
-      .all();
 
-    for (const audit of queued) {
-      await runAudit(audit.id);
-      processed += 1;
-    }
+  const audits = await db.orm.public.Audit.orderBy((audit) => audit.createdAt.asc()).all();
+  const queued = audits.filter((audit) => audit.status === 'QUEUED');
+
+  if (fallback && queued[0]) {
+    await runAudit(queued[0].id);
+    processed += 1;
   }
 
-  return NextResponse.json({ enqueued, processed });
+  return NextResponse.json({
+    enqueued,
+    processed,
+    queued: queued.length,
+    fallback,
+    fallbackEnv: process.env.FALLBACK_PROCESS ?? null,
+  });
 }

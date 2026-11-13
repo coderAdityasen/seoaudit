@@ -104,7 +104,7 @@ export default function AuditDetailPage({ params }: { params: Promise<{ id: stri
           overallScore={audit.overallScore}
           scoreBreakdown={audit.scoreBreakdown}
           result={audit.result}
-          pdfHref={audit.pdfPath ? `/api/audit/${audit.id}/pdf` : null}
+          pdfHref={audit.result ? `/api/audit/${audit.id}/pdf` : null}
         />
       )}
       <section className="rounded-lg border border-zinc-200 bg-white p-5">

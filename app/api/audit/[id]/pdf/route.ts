@@ -1,36 +1,45 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { NextResponse } from 'next/server';
 import { db } from '@/src/prisma/db';
-import { reportsDir } from '@/src/lib/reports';
+import { buildPdfBytes } from '@/src/report/pdf';
+import type { AuditResult } from '@/src/types/audit';
+
+function asResult(value: unknown): AuditResult | null {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as AuditResult;
+    } catch {
+      return null;
+    }
+  }
+  if (typeof value === 'object') return value as AuditResult;
+  return null;
+}
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const audit = await db.orm.public.Audit.where({ id }).select('id', 'pdfPath').first();
+  const audit = await db.orm.public.Audit.where({ id })
+    .include('client', (client) => client)
+    .first();
 
-  if (!audit?.pdfPath) {
+  const result = asResult(audit?.result);
+  if (!audit?.client || !result) {
     return NextResponse.json({ error: 'PDF not ready' }, { status: 404 });
   }
 
-  const root = path.resolve(reportsDir());
-  const filePath = path.resolve(audit.pdfPath);
-  const rootPrefix = root.endsWith(path.sep) ? root : root + path.sep;
-  if (filePath !== root && !filePath.startsWith(rootPrefix)) {
-    return NextResponse.json({ error: 'Invalid report path' }, { status: 400 });
-  }
+  const bytes = await buildPdfBytes({
+    client: audit.client,
+    auditId: id,
+    result,
+  });
 
-  try {
-    const bytes = await readFile(filePath);
-    return new NextResponse(new Uint8Array(bytes), {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="audit-${id}.pdf"`,
-      },
-    });
-  } catch {
-    return NextResponse.json({ error: 'PDF file is missing' }, { status: 404 });
-  }
+  return new NextResponse(new Uint8Array(bytes), {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="audit-${id}.pdf"`,
+    },
+  });
 }

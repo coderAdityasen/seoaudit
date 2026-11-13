@@ -35,7 +35,7 @@ function wrap(text: string, font: { widthOfTextAtSize: (text: string, size: numb
   return lines.length > 0 ? lines : [''];
 }
 
-export async function generatePdf({
+export async function buildPdfBytes({
   client,
   auditId,
   result,
@@ -44,9 +44,6 @@ export async function generatePdf({
   auditId: string;
   result: AuditResult;
 }) {
-  const dir = reportsDir();
-  await mkdir(dir, { recursive: true });
-
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -131,7 +128,21 @@ export async function generatePdf({
     y -= 6;
   }
 
-  const bytes = await doc.save();
+  return doc.save();
+}
+
+export async function generatePdf({
+  client,
+  auditId,
+  result,
+}: {
+  client: PdfClient;
+  auditId: string;
+  result: AuditResult;
+}) {
+  const bytes = await buildPdfBytes({ client, auditId, result });
+  const dir = reportsDir();
+  await mkdir(dir, { recursive: true });
   const filePath = path.join(dir, `audit-${auditId}.pdf`);
   await writeFile(filePath, bytes);
   return filePath;

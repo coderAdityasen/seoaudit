@@ -87,7 +87,12 @@ export async function runAudit(auditId: string) {
     });
 
     await step(auditId, 92, 'Generating PDF');
-    const pdfPath = await generatePdf({ client, auditId, result });
+    let pdfPath = `on-demand:${auditId}`;
+    try {
+      pdfPath = await generatePdf({ client, auditId, result });
+    } catch (pdfError) {
+      console.warn('[PDF] saved in the database only. Download rebuilds it.', pdfError);
+    }
     await db.orm.public.Audit.where({ id: auditId }).update({ pdfPath });
 
     await step(auditId, 98, 'Sending notifications');

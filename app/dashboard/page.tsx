@@ -87,7 +87,7 @@ function AuditByQuery() {
         overallScore={audit.overallScore}
         scoreBreakdown={audit.scoreBreakdown}
         result={audit.result}
-        pdfHref={audit.pdfPath ? `/api/audit/${audit.id}/pdf` : null}
+        pdfHref={audit.result ? `/api/audit/${audit.id}/pdf` : null}
       />
     </div>
   );
