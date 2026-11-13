@@ -1,4 +1,4 @@
-export const gscMock = {
+module.exports = {
   rows: [
     { query: 'dental clinic in pune', clicks: 42, impressions: 980, ctr: 0.043, position: 6.2 },
     { query: 'best dentist pune', clicks: 28, impressions: 740, ctr: 0.038, position: 8.1 },

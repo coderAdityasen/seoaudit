@@ -1,4 +1,4 @@
-export const pageSpeedMock = {
+module.exports = {
   url: 'https://example-dental-clinic.com',
   strategy: 'mobile',
   categories: {

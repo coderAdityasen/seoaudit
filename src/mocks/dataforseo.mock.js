@@ -1,4 +1,4 @@
-export const dataForSeoMock = {
+module.exports = {
   tasks: [{
     result: [{
       keyword: 'dental clinic pune',

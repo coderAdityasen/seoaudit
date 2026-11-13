@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  outputFileTracingIncludes: {
+    '/api/cron/audits': ['./src/mocks/**/*', './src/crawlers/**/*'],
+    '/api/audit/**/*': ['./src/mocks/**/*', './src/crawlers/**/*'],
+  },
   turbopack: {
     rules: {
       "*.css": {
