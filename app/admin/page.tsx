@@ -73,6 +73,9 @@ export default function AdminPage() {
       const response = await fetch(`/api/audit/${active.id}`);
       const data = await response.json();
       setActive(data);
+      setAudits((prev) =>
+        prev.map((item) => (item.id === data.id ? { ...item, ...data } : item))
+      );
       if (data.status === 'COMPLETED' || data.status === 'FAILED') {
         window.clearInterval(timer);
         load();
@@ -104,6 +107,7 @@ export default function AdminPage() {
       createdAt: new Date().toISOString(),
       completedAt: null,
     });
+    await load();
   }
 
   async function addClient(event: FormEvent) {

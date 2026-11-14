@@ -26,8 +26,8 @@ function LoginForm() {
       setError('Those credentials did not match ADMIN_USER and ADMIN_PASSWORD.');
       return;
     }
-    router.push(searchParams.get('next') || '/admin');
-    router.refresh();
+    const target = searchParams.get('next') || '/admin';
+    window.location.href = target;
   }
 
   return (
